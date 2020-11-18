@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class MyTestExampleClass {
 
@@ -39,7 +40,7 @@ public class MyTestExampleClass {
 				() -> System.out.println("You’ve reached the end of INT"));
 
 		// 4.
-		System.out.println(differenceBetweenLargestAndSmallest());
+		System.out.println("Difference is : "+differenceBetweenLargestAndSmallest());
 
 		// 5. ArrayList
 		List<String> myList = new ArrayList<>();
@@ -63,7 +64,7 @@ public class MyTestExampleClass {
 		System.out.println("Text blocks example is: " + generateViewTemplate(placeHolderMap));
 
 		// 7.
-		System.out.println("  " + checkWeekDays(WeekDaysEnum.SUNDAY));
+		checkWeekDays(WeekDaysEnum.SUNDAY);
 
 		// 8.
 		System.out.println(" Math operations are " + checkMathOperations(new Addition(2, 3), new Addition(2, 3)));
@@ -106,12 +107,19 @@ public class MyTestExampleClass {
 	 * 4. Write a method that calculates the difference between the largest and the
 	 * smallest number in a list of integers.
 	 */
-
+//refactor
 	public static Integer differenceBetweenLargestAndSmallest() {
-		List<Integer> list = List.of(1, 33, 55, 78);
-		var maxValue = list.stream().max(Integer::compare).get();
-		var minValue = list.stream().min(Integer::compare).get();
-		return Math.subtractExact(maxValue, minValue);
+		
+		  List<Integer> list = List.of(1, 33, 55, 78); 
+		  
+		  return  list.stream().collect(Collectors.teeing(
+				  Collectors.maxBy(Integer::compare),
+				  Collectors.minBy(Integer::compare),
+				  (e1, e2) ->{
+					  return  Math.subtractExact(e1.get(), e2.get()); 
+				  }
+				  ));
+		  
 	}
 
 	/*
@@ -167,25 +175,15 @@ public class MyTestExampleClass {
 	 * returns a string describing whether it’s a workday or a weekend day.
 	 */
 
-	public static String checkWeekDays(WeekDaysEnum myEnum) {
-		String dayType = "";
+	public static void checkWeekDays(WeekDaysEnum myEnum) {
+		
 		switch (myEnum) {
-		case MONDAY:
-		case TUESDAY:
-		case WEDNESDAY:
-		case THURSDAY:
-		case FRIDAY:
-			dayType = "It's a work day";
-			break;
-		case SATURDAY:
-		case SUNDAY:
-			dayType = "It's a weekend day";
-			break;
-		default:
-
+		case MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> System.out.println("It' s a work day");
+		case SATURDAY, SUNDAY -> System.out.println("It's a weekend day");
 		}
-		return dayType;
+
 	}
+
 
 	/*
 	 * 8.Define an interface called MathematicalOperation. Extend it, and only allow
@@ -198,4 +196,15 @@ public class MyTestExampleClass {
 	public static boolean checkMathOperations(MathematicalOperation o1, MathematicalOperation o2) {
 		return o1.equals(o2);
 	}
+
+	/*
+	 * la ex 4 incearca sa falsest Collectors.teeing pentru a face calculul 6:03
+	 * la ex 7 incearca sa folosesti un switch expression, care sa intoarca direct
+	 * 6:04 return switch (myEnum) { case MONDAY, TUESDAY...->"It's a work day" case
+	 * SATURDAY, SUNDAY -> "It's a weekend day"; }; 6:04 la ex8, ar trebui sa ai asa
+	 * 6:05 in MathematicalOperation -> getResult() 6:05 in Addtion 6:05
+	 * 
+	 * @Override public Integer getResult() { return operandA + operandB; } 6:05 la
+	 * fel si in Subtraction 6:05 in afara de asta, totul arata bine
+	 */
 }
